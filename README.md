@@ -1,15 +1,29 @@
-# TDE3 — Previsão de Nota com Regressão Linear
+# Notável: previsão de nota com Machine Learning
 
-Projeto desenvolvido para a disciplina de RMC. O programa utiliza Machine Learning (Regressão Linear) para prever a nota de um aluno com base em seus atributos acadêmicos e, a partir disso, indicar se ele foi aprovado ou não.
+Projeto de Machine Learning feito na disciplina **RMC** do 1º semestre de Engenharia de Software (PUCPR), como TDE 3. O programa usa **regressão linear** para prever a nota de um aluno a partir da média, horas extras, frequência, tarefas e atividades extras, e diz se ele deve ser aprovado.
 
-## Bibliotecas utilizadas
+## Estrutura
 
-- `scikit-learn` — modelo de Regressão Linear
-- `numpy` — manipulação de arrays
+| Arquivo | O que é |
+|---|---|
+| `TDE3.py` | Programa principal: treina o modelo, pede os dados de um aluno e mostra a nota prevista e se ele foi aprovado |
+| `prototipos/teste.py` | Protótipo do TDE 3 que também mostra o R² do modelo |
+| `prototipos/teste_tde.py` | Outra versão de teste do TDE 3, feita na pasta dos TDEs |
+| `prototipos/teste2.py` | Rascunho da regra de aprovação, separando reprovação por nota e por frequência |
+| `aula/aulasklr.ipynb` | Notebook da aula de scikit-learn: regressão linear que estima o preço de um imóvel |
 
-## Como funciona
+## Como o `TDE3.py` funciona
 
-### Parte 1 — Criar e treinar o modelo
+O programa usa Machine Learning (regressão linear) para prever a nota de um aluno a partir dos seus atributos acadêmicos e, com isso, indicar se ele foi aprovado ou não.
+
+### Bibliotecas usadas
+
+- `scikit-learn`: modelo de regressão linear
+- `numpy`: manipulação de arrays
+
+Se o scikit-learn não carregar (por exemplo, bloqueado pelo Windows), o código usa uma regressão linear própria feita com `numpy` (mínimos quadrados), que dá o mesmo resultado.
+
+### Parte 1: criar e treinar o modelo
 
 ```python
 modelo = LinearRegression()
@@ -20,21 +34,19 @@ y = np.array([6.5, 8.2, 3.6, 1.3, 9.7, 6.0, 2.8, 4.0, 8.5, 10.0])
 modelo.fit(X, y)
 ```
 
-A variável `modelo` cria um objeto vazio que irá aprender com os dados. `X` contém os atributos de cada aluno e `y` contém as notas correspondentes. O `modelo.fit(X, y)` treina o modelo, fazendo ele aprender o padrão entre os atributos e as notas para poder fazer previsões.
+`modelo` é um objeto vazio que vai aprender com os dados. `X` tem os atributos de 10 alunos e `y` tem as notas de cada um. O `modelo.fit(X, y)` treina o modelo, ou seja, ele aprende a relação entre os atributos e as notas para conseguir fazer previsões.
 
 **Atributos de X (nessa ordem):**
 
-| Coluna | Atributo            | Tipo  | Intervalo |
-|--------|---------------------|-------|-----------|
-| 1      | Média do aluno      | float | 0.0 – 10.0 |
-| 2      | Horas extras        | int   | 0 – 6     |
-| 3      | Frequência          | float | 0.0 – 1.0 |
-| 4      | Tarefas feitas      | int   | 0 – 15    |
-| 5      | Atividades extras   | int   | 0 – 5     |
+| Coluna | Atributo | Tipo | Intervalo |
+|---|---|---|---|
+| 1 | Média do aluno | float | 0.0 – 10.0 |
+| 2 | Horas extras | int | 0 – 6 |
+| 3 | Frequência | float | 0.0 – 1.0 |
+| 4 | Tarefas feitas | int | 0 – 15 |
+| 5 | Atividades extras | int | 0 – 6 |
 
----
-
-### Parte 2 — Validação dos valores digitados
+### Parte 2: validação dos valores digitados
 
 ```python
 def recebe_valor(mensagem: str, tipo: type, minimo: float, maximo: float) -> float | int:
@@ -51,60 +63,56 @@ def recebe_valor(mensagem: str, tipo: type, minimo: float, maximo: float) -> flo
     return valor
 ```
 
-Função reutilizável para coletar e validar qualquer atributo. Ela recebe a mensagem a exibir, o tipo esperado (`float` ou `int`), e os limites mínimo e máximo. Enquanto o valor digitado for inválido (tipo errado ou fora do intervalo), ela continua pedindo. Quando válido, retorna o valor.
+Função reutilizada para pedir e validar cada atributo. Ela recebe a mensagem, o tipo esperado (`float` ou `int`) e os limites mínimo e máximo. Enquanto o valor for inválido (tipo errado ou fora do intervalo), ela continua pedindo. Quando o valor é válido, ela o retorna.
 
----
-
-### Parte 3 — Coletar dados e prever a nota
+### Parte 3: coletar os dados e prever a nota
 
 ```python
-media = recebe_valor('Digite a média do aluno entre 0.0 a 10.0: ', float, 0.0, 10.0)
-horas_extras = recebe_valor('Digite quantas horas extras o aluno tem entre 0 a 6: ', int, 0, 6)
-freq = recebe_valor('Digite a frequência do aluno entre 0.0 a 1.0: ', float, 0.0, 1.0)
-tarefas_feitas = recebe_valor('Digite quantas tarefas o aluno completou entre 0 a 15: ', int, 0, 15)
-atividades_extras = recebe_valor('Digite quantas atividades extras o aluno realizou entre 0 a 5: ', int, 0, 5)
-
 dados_aluno_novo = np.array([[media, horas_extras, freq, tarefas_feitas, atividades_extras]])
 nota_prevista = modelo.predict(dados_aluno_novo)
 ```
 
-O programa coleta os atributos do aluno novo via terminal. Os dados são organizados em um array de duas dimensões (formato de tabela de uma linha) porque o modelo exige o mesmo formato usado no treino. Em seguida, `modelo.predict()` aplica o padrão aprendido e calcula a nota prevista.
+O programa pede os atributos do aluno novo no terminal. Os dados ficam em um array de duas dimensões (uma tabela de uma linha), porque o modelo exige o mesmo formato usado no treino. Depois, `modelo.predict()` aplica o que foi aprendido e calcula a nota prevista.
 
----
-
-### Parte 4 — Exibir resultado e decidir aprovação
+### Parte 4: mostrar o resultado e decidir a aprovação
 
 ```python
-print(f'\nA nota do aluno novo prevista é: {nota_prevista[0]:.2f}')
-
-if freq >= 0.5 and nota_prevista >= 7.0:
+if freq >= 0.5 and nota_prevista[0] >= 7.0:
     print('O aluno foi aprovado')
 else:
-    print(f'O aluno provavelmente reprovará com a nota {nota_prevista[0]:.2f} e frequência {freq * 100}%')
+    print(f'O aluno provavelmente reprovará com a nota {nota_prevista[0]:.2f} e frequencia {freq * 100:.0f}%')
 ```
 
-Exibe a nota prevista e verifica as condições de aprovação. O aluno é aprovado somente se **ambas** as condições forem verdadeiras ao mesmo tempo (`and`): frequência maior ou igual a 50% **e** nota maior ou igual a 7.0. Se qualquer uma das duas falhar, o programa exibe a mensagem de reprovação com a nota e frequência do aluno.
+O aluno só é aprovado se as **duas** condições forem verdadeiras ao mesmo tempo (`and`): frequência de pelo menos 50% **e** nota prevista de pelo menos 7.0. Se uma delas falhar, o programa mostra a mensagem de reprovação com a nota e a frequência.
 
----
+### Como executar
 
-## Como executar
-
-1. Instale as dependências:
 ```bash
 pip install scikit-learn numpy
-```
-
-2. Execute o arquivo:
-```bash
 python TDE3.py
 ```
 
-3. Digite os atributos do aluno quando solicitado e veja a previsão.
+Digite os atributos do aluno quando o programa pedir e veja a previsão.
 
 ---
 
-## Arquivos do repositório
+## Protótipos (`prototipos/`)
 
-- `TDE3.py`: programa principal, que prevê a nota do aluno e diz se ele foi aprovado
-- `prototipos/`: versões de teste feitas antes do TDE3 final
-- `aula/aulasklr.ipynb`: notebook da aula de scikit-learn (regressão linear)
+Versões feitas durante o desenvolvimento, antes do `TDE3.py` final:
+
+- **`teste.py`**: o mesmo programa do TDE 3, com o cálculo do **R²** (`modelo.score(X, y)`), que mostra o quanto o modelo se ajusta aos dados de treino. Quanto mais perto de 1, melhor.
+- **`teste_tde.py`**: versão de teste muito parecida, feita junto com os arquivos do TDE.
+- **`teste2.py`**: trecho com a regra de aprovação separada em duas variáveis (`aprovado_por_frequencia` e `aprovado_por_nota`), para mostrar o motivo da reprovação. É só um rascunho: ele usa `freq` e `nota_prevista` sem defini-las, então não roda sozinho.
+
+## Notebook da aula (`aula/aulasklr.ipynb`)
+
+Exercício da aula de scikit-learn que serviu de base para o TDE. O modelo é treinado com 6 imóveis, cada um descrito por 10 características numéricas, e os preços deles. Depois, `modelo.predict()` estima o preço de um imóvel novo. A ideia é a mesma do TDE 3, só que com outro tipo de dado.
+
+```bash
+pip install notebook scikit-learn numpy
+jupyter notebook aula/aulasklr.ipynb
+```
+
+---
+
+Os TDEs de RMC também estão no repositório [TDEs_RMC](https://github.com/franpietrobelli-creator/TDEs_RMC).
